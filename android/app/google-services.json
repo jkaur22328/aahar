@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "79383593534",
+    "project_id": "aahar-d30b3",
+    "storage_bucket": "aahar-d30b3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:79383593534:android:a0b11c076a2068576a876f",
+        "android_client_info": {
+          "package_name": "com.example.testapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4aeVHGVdnsJgfCg4ZqgrTUTgCHYaLV68"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
