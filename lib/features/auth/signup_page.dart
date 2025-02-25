@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testapp/features/auth/auth_provider.dart';
+import 'package:testapp/features/home/home_page.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -47,9 +48,14 @@ class _SignupPageState extends State<SignupPage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                await authProvider.signInWithEmailAndPassword(
+                final res = await authProvider.signUpWithEmailAndPassword(
                     _emailController.text.trim(),
                     _passwordController.text.trim());
+
+                if (res != null) {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => HomePage()));
+                }
               },
               child: Text('signup '),
             )

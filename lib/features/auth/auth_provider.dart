@@ -18,6 +18,7 @@ class AuthProvider with ChangeNotifier {
         email: email,
         password: password,
       );
+
       return userCredential.user;
     } catch (e) {
       print("Error: $e");
