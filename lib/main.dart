@@ -3,8 +3,7 @@ import "package:flutter/material.dart";
 import "package:flutter_svg/svg.dart";
 import "package:google_fonts/google_fonts.dart";
 import "package:testapp/firebase_options.dart";
-import "package:testapp/features/auth/login_page.dart";
-import "package:testapp/features/auth/signup_page.dart";
+import "package:testapp/util/router.dart";
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,13 +16,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
+    return MaterialApp.router(
+      title: 'Aahar',
       theme: ThemeData(
-        //primarySwatch: const Color.fromARGB(255, 24, 131, 219),
         fontFamily: GoogleFonts.poppins().fontFamily,
       ),
-      home: const SignupPage(),
+      routerConfig: router,
       debugShowCheckedModeBanner: false,
     );
   }

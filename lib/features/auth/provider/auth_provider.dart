@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -11,13 +12,23 @@ class AuthProvider with ChangeNotifier {
 
   // Sign Up Method
   Future<User?> signUpWithEmailAndPassword(
-      String email, String password) async {
+      String email, String password, String role, String name) async {
     try {
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      if (userCredential.user != null) {
+        await FirebaseFirestore.instance
+            .collection('user')
+            .doc(userCredential.user!.uid)
+            .set({
+          'name': name,
+          'email': email,
+          'role': role,
+        });
+      }
       return userCredential.user;
     } catch (e) {
       print("Error: $e");
