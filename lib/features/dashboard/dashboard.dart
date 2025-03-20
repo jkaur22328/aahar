@@ -1,4 +1,7 @@
+import 'package:aahar/util/routes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -77,6 +80,13 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.go(Routes.createOrder);
+        },
+        backgroundColor: Colors.blue,
+        child: const Icon(Icons.add),
+      ),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -85,7 +95,7 @@ class _DashboardPageState extends State<DashboardPage> {
               floating: true,
               backgroundColor: Colors.white,
               title: const Text(
-                "Let's Share A Meal",
+                "Aahar - Let's Share A Meal",
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -99,7 +109,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.person_outline, color: Colors.black),
-                  onPressed: () {},
+                  onPressed: () async {
+                    await FirebaseAuth.instance.signOut();
+                    if (context.mounted) context.go(Routes.home);
+                  },
                 ),
               ],
             ),
@@ -163,11 +176,6 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.add),
       ),
     );
   }

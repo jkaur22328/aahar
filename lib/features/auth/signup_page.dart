@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:testapp/features/auth/provider/auth_provider.dart';
 import 'dart:ui';
 
-import 'package:testapp/util/routes.dart';
+import 'package:aahar/features/auth/provider/auth_provider.dart';
+import 'package:aahar/util/routes.dart';
+import 'package:aahar/util/utils.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -17,10 +18,10 @@ class _SignUpPageState extends State<SignUpPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  String _selectedRole = 'shopping';
+  String _selectedRole = 'admin';
   bool _isPasswordVisible = false;
 
-  final List<String> _roles = ['shopping', 'cooking', 'delivery'];
+  final List<String> _roles = ['admin', 'shopping', 'cooking', 'delivery'];
 
   late final AuthProvider authProvider;
 
@@ -179,9 +180,13 @@ class _SignUpPageState extends State<SignUpPage> {
                                                     _nameController.text
                                                         .trim());
 
-                                            if (res != null &&
-                                                context.mounted) {
-                                              context.go(Routes.home);
+                                            if (context.mounted) {
+                                              if (res != null) {
+                                                context.go(Routes.home);
+                                              } else {
+                                                showSnackBar(context,
+                                                    "Something went Wrong!!");
+                                              }
                                             }
                                           }
                                         },

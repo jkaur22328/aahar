@@ -14,6 +14,9 @@ class AuthProvider with ChangeNotifier {
   Future<User?> signUpWithEmailAndPassword(
       String email, String password, String role, String name) async {
     try {
+      _loading = true;
+      notifyListeners();
+
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -31,8 +34,12 @@ class AuthProvider with ChangeNotifier {
       }
       return userCredential.user;
     } catch (e) {
-      print("Error: $e");
+      _error = e.toString();
+      notifyListeners();
       return null;
+    } finally {
+      _loading = false;
+      notifyListeners();
     }
   }
 
@@ -40,14 +47,21 @@ class AuthProvider with ChangeNotifier {
   Future<User?> signInWithEmailAndPassword(
       String email, String password) async {
     try {
+      _loading = true;
+      notifyListeners();
+
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
       return userCredential.user;
     } catch (e) {
-      print("Error: $e");
+      _error = e.toString();
+      notifyListeners();
       return null;
+    } finally {
+      _loading = false;
+      notifyListeners();
     }
   }
 

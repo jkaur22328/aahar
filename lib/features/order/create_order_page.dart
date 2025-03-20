@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class AdminDashboard extends StatefulWidget {
-  const AdminDashboard({super.key});
+class CreateOrderPage extends StatefulWidget {
+  const CreateOrderPage({super.key});
 
   @override
-  State<AdminDashboard> createState() => _AdminDashboardState();
+  State<CreateOrderPage> createState() => _CreateOrderPageState();
 }
 
-class _AdminDashboardState extends State<AdminDashboard> {
+class _CreateOrderPageState extends State<CreateOrderPage> {
   final _formKey = GlobalKey<FormState>();
 
   // Form Controllers

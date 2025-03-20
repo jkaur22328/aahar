@@ -1,9 +1,9 @@
+import "package:aahar/firebase_options.dart";
+import "package:aahar/util/router.dart";
 import "package:firebase_core/firebase_core.dart";
 import "package:flutter/material.dart";
 import "package:flutter_svg/svg.dart";
 import "package:google_fonts/google_fonts.dart";
-import "package:testapp/firebase_options.dart";
-import "package:testapp/util/router.dart";
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

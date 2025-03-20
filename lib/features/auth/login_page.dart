@@ -1,9 +1,10 @@
+import 'package:aahar/features/auth/provider/auth_provider.dart';
+import 'package:aahar/util/routes.dart';
+import 'package:aahar/util/utils.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
 import 'package:go_router/go_router.dart';
-import 'package:testapp/features/auth/provider/auth_provider.dart';
-import 'package:testapp/util/routes.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -205,13 +206,17 @@ class _LoginPageState extends State<LoginPage> {
                                               .validate()) {
                                             final res = await authProvider
                                                 .signInWithEmailAndPassword(
-                                                    _emailController.text
-                                                        .trim(),
-                                                    _passwordController.text
-                                                        .trim());
-                                            if (res != null &&
-                                                context.mounted) {
-                                              context.go(Routes.home);
+                                              _emailController.text.trim(),
+                                              _passwordController.text.trim(),
+                                            );
+
+                                            if (context.mounted) {
+                                              if (res != null) {
+                                                context.go(Routes.home);
+                                              } else {
+                                                showSnackBar(context,
+                                                    "Something went Wrong!!");
+                                              }
                                             }
                                           }
                                         },
