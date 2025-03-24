@@ -18,10 +18,15 @@ class _SignUpPageState extends State<SignUpPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  String _selectedRole = 'admin';
+  String _selectedRole = UserRole.admin;
   bool _isPasswordVisible = false;
 
-  final List<String> _roles = ['admin', 'shopping', 'cooking', 'delivery'];
+  final List<String> _roles = [
+    UserRole.admin,
+    UserRole.shopping,
+    UserRole.cooking,
+    UserRole.delivery,
+  ];
 
   late final AuthProvider authProvider;
 

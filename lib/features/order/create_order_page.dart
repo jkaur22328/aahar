@@ -1,4 +1,9 @@
+import 'dart:developer';
+
+import 'package:aahar/data/model/order.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class CreateOrderPage extends StatefulWidget {
   const CreateOrderPage({super.key});
@@ -14,6 +19,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
   final _orderNameController = TextEditingController();
   final _servingsController = TextEditingController();
   final _deliveryLocationController = TextEditingController();
+  var _deliveryDateTime = DateTime.now();
   final _deliveryTimeController = TextEditingController();
   final _notesController = TextEditingController();
 
@@ -31,9 +37,22 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
     super.dispose();
   }
 
+  List<TextEditingController> menuItemNameControllers = [];
+  List<TextEditingController> menuItemQuantityControllers = [];
+  List<TextEditingController> shoppingItemNameControllers = [];
+  List<TextEditingController> shoppingItemQuantityControllers = [];
+  List<TextEditingController> shoppingItemUnitControllers = [];
+
   void _addMenuItem() {
     setState(() {
+      var name = TextEditingController();
+      var quantity = TextEditingController();
+      menuItemNameControllers.add(name);
+      menuItemQuantityControllers.add(quantity);
+
       menuItems.add(MenuItemWidget(
+        itemController: name,
+        quantityController: quantity,
         onRemove: (MenuItemWidget widget) {
           setState(() {
             menuItems.remove(widget);
@@ -45,7 +64,17 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
 
   void _addShoppingItem() {
     setState(() {
+      var name = TextEditingController();
+      var quantity = TextEditingController();
+      var unit = TextEditingController();
+      shoppingItemNameControllers.add(name);
+      shoppingItemQuantityControllers.add(quantity);
+      shoppingItemUnitControllers.add(unit);
+
       shoppingItems.add(ShoppingItemWidget(
+        itemController: name,
+        quantityController: quantity,
+        unitController: unit,
         onRemove: (ShoppingItemWidget widget) {
           setState(() {
             shoppingItems.remove(widget);
@@ -55,12 +84,46 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
     });
   }
 
-  void _submitOrder() {
+  Future<void> _submitOrder() async {
     if (_formKey.currentState!.validate()) {
-      // Process the order
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Order created successfully!')),
+      List<MenuItem> menuItems = [];
+      for (var i = 0; i < menuItemNameControllers.length; i++) {
+        menuItems.add(MenuItem(
+            name: menuItemNameControllers[i].text.trim(),
+            quantity: int.parse(menuItemQuantityControllers[i].text.trim())));
+      }
+      List<ShoppingItem> shoppingItems = [];
+      for (var i = 0; i < shoppingItemNameControllers.length; i++) {
+        shoppingItems.add(ShoppingItem(
+            itemName: shoppingItemNameControllers[i].text.trim(),
+            quantity:
+                int.parse(shoppingItemQuantityControllers[i].text.trim())));
+      }
+
+      var deliveryInfo = DeliveryInfo(
+        location: _deliveryLocationController.text.trim(),
+        time: Timestamp.fromDate(_deliveryDateTime),
       );
+
+      var order = OrderModel(
+        orderName: _orderNameController.text.trim(),
+        numberOfServings: int.tryParse(_servingsController.text.trim()) ?? 0,
+        menuItems: menuItems,
+        shoppingItems: shoppingItems,
+        deliveryInfo: deliveryInfo,
+        notes: _notesController.text.trim(),
+        addedDate: Timestamp.now(),
+        updateDate: Timestamp.now(),
+      );
+      // Process the order
+
+      await FirebaseFirestore.instance.collection('orders').add(order.toMap());
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Order created successfully!')),
+        );
+        Navigator.pop(context);
+      }
     }
   }
 
@@ -229,9 +292,22 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
-                          controller: _deliveryTimeController,
+                          readOnly: true,
+                          onTap: () async {
+                            final res = await showDatePicker(
+                                context: context,
+                                firstDate: DateTime.now(),
+                                lastDate: DateTime(2099));
+
+                            if (res == null) return;
+                            _deliveryDateTime = res;
+                            setState(() {});
+                          },
+                          controller: _deliveryTimeController
+                            ..text = DateFormat("MMMM dd, yyyy")
+                                .format(_deliveryDateTime),
                           decoration: const InputDecoration(
-                            labelText: 'Delivery Time',
+                            labelText: 'Delivery Date',
                             border: OutlineInputBorder(),
                           ),
                           validator: (value) {
@@ -302,10 +378,15 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
 // Menu Item Widget
 class MenuItemWidget extends StatelessWidget {
   final Function(MenuItemWidget) onRemove;
-  final TextEditingController _itemController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController itemController;
+  final TextEditingController quantityController;
 
-  MenuItemWidget({super.key, required this.onRemove});
+  const MenuItemWidget({
+    super.key,
+    required this.onRemove,
+    required this.itemController,
+    required this.quantityController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -323,7 +404,7 @@ class MenuItemWidget extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: TextFormField(
-                  controller: _itemController,
+                  controller: itemController,
                   decoration: const InputDecoration(
                     labelText: 'Menu Item',
                     border: OutlineInputBorder(),
@@ -339,7 +420,7 @@ class MenuItemWidget extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
-                  controller: _quantityController,
+                  controller: quantityController,
                   decoration: const InputDecoration(
                     labelText: 'Quantity',
                     border: OutlineInputBorder(),
@@ -368,11 +449,16 @@ class MenuItemWidget extends StatelessWidget {
 // Shopping Item Widget
 class ShoppingItemWidget extends StatelessWidget {
   final Function(ShoppingItemWidget) onRemove;
-  final TextEditingController _itemController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
-  final TextEditingController _unitController = TextEditingController();
+  final TextEditingController itemController;
+  final TextEditingController quantityController;
+  final TextEditingController unitController;
 
-  ShoppingItemWidget({super.key, required this.onRemove});
+  const ShoppingItemWidget(
+      {super.key,
+      required this.onRemove,
+      required this.itemController,
+      required this.quantityController,
+      required this.unitController});
 
   @override
   Widget build(BuildContext context) {
@@ -390,7 +476,7 @@ class ShoppingItemWidget extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: TextFormField(
-                  controller: _itemController,
+                  controller: itemController,
                   decoration: const InputDecoration(
                     labelText: 'Item Name',
                     border: OutlineInputBorder(),
@@ -406,7 +492,7 @@ class ShoppingItemWidget extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
-                  controller: _quantityController,
+                  controller: quantityController,
                   decoration: const InputDecoration(
                     labelText: 'Quantity',
                     border: OutlineInputBorder(),
@@ -423,7 +509,7 @@ class ShoppingItemWidget extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
-                  controller: _unitController,
+                  controller: unitController,
                   decoration: const InputDecoration(
                     labelText: 'Unit',
                     border: OutlineInputBorder(),

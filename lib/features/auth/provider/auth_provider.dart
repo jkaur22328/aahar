@@ -1,3 +1,4 @@
+import 'package:aahar/features/auth/model/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,9 @@ class AuthProvider with ChangeNotifier {
   String _error = "";
   String get error => _error;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  UserModel? _currentUser;
+  UserModel? get currentUser => _currentUser;
 
   // Sign Up Method
   Future<User?> signUpWithEmailAndPassword(
@@ -24,13 +28,14 @@ class AuthProvider with ChangeNotifier {
       );
       if (userCredential.user != null) {
         await FirebaseFirestore.instance
-            .collection('user')
+            .collection('users')
             .doc(userCredential.user!.uid)
             .set({
           'name': name,
           'email': email,
           'role': role,
         });
+        await getUserDetail(userCredential.user!.uid);
       }
       return userCredential.user;
     } catch (e) {
@@ -54,6 +59,9 @@ class AuthProvider with ChangeNotifier {
         email: email,
         password: password,
       );
+
+      await getUserDetail(userCredential.user!.uid);
+
       return userCredential.user;
     } catch (e) {
       _error = e.toString();
@@ -61,6 +69,19 @@ class AuthProvider with ChangeNotifier {
       return null;
     } finally {
       _loading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<UserModel?> getUserDetail(String uid) async {
+    try {
+      final res =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      _currentUser = UserModel.fromMap(res.data()!, res.id);
+      return _currentUser;
+    } catch (e) {
+      return null;
+    } finally {
       notifyListeners();
     }
   }
