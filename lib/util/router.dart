@@ -2,6 +2,7 @@ import 'package:aahar/data/model/order.dart';
 import 'package:aahar/features/auth/login_page.dart';
 import 'package:aahar/features/auth/signup_page.dart';
 import 'package:aahar/features/dashboard/admin_page.dart';
+import 'package:aahar/features/home/home_page.dart';
 import 'package:aahar/features/order/create_order_page.dart';
 import 'package:aahar/features/order/order_page.dart';
 import 'package:aahar/util/routes.dart';
@@ -11,7 +12,7 @@ final router = GoRouter(
   routes: [
     GoRoute(
       path: Routes.home,
-      builder: (context, state) => OrderDashboard(),
+      builder: (context, state) => HomePage(),
     ),
     GoRoute(
       path: Routes.login,
