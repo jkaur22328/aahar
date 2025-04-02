@@ -187,7 +187,9 @@ class HeroSection extends StatelessWidget {
               Row(
                 children: [
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.go(Routes.signup);
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.white,
@@ -199,11 +201,11 @@ class HeroSection extends StatelessWidget {
                     child: const Text('Get Started'),
                   ),
                   const SizedBox(width: 16),
-                  TextButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.play_circle_outline),
-                    label: const Text('See how it works'),
-                  ),
+                  // TextButton.icon(
+                  //   onPressed: () {},
+                  //   icon: const Icon(Icons.play_circle_outline),
+                  //   label: const Text('See how it works'),
+                  // ),
                 ],
               ),
             ],

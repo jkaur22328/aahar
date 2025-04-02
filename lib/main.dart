@@ -27,6 +27,12 @@ class MyApp extends StatelessWidget {
       title: 'Aahar',
       theme: ThemeData(
         fontFamily: GoogleFonts.poppins().fontFamily,
+        textTheme: const TextTheme(
+          headlineMedium: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.indigo,
+          ),
+        ),
       ),
       routerConfig: router,
       debugShowCheckedModeBanner: false,

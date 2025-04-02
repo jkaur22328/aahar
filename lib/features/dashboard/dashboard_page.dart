@@ -1,24 +1,30 @@
 import 'package:aahar/data/model/order.dart';
+import 'package:aahar/features/auth/model/user_model.dart';
+import 'package:aahar/features/auth/provider/auth_provider.dart';
 import 'package:aahar/features/dashboard/provider/dashboard_provider.dart';
 import 'package:aahar/util/routes.dart';
 import 'package:aahar/util/utils.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-class OrderDashboard extends StatefulWidget {
-  const OrderDashboard({Key? key}) : super(key: key);
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
 
   @override
-  State<OrderDashboard> createState() => _OrderDashboardState();
+  State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _OrderDashboardState extends State<OrderDashboard> {
+class _DashboardPageState extends State<DashboardPage> {
   late final DashboardProvider dashboardProvider;
+  late final AuthProvider authProvider;
   @override
   void initState() {
     dashboardProvider = DashboardProvider()..getAllOrders();
+    authProvider = AuthProvider()
+      ..getUserDetail(auth.FirebaseAuth.instance.currentUser!.uid);
     super.initState();
   }
 
@@ -40,6 +46,10 @@ class _OrderDashboardState extends State<OrderDashboard> {
 
   // Get count of orders by status
 
+  String _getInitials(String name) {
+    return name[0];
+  }
+
   @override
   Widget build(BuildContext context) {
     // Get screen size for responsive layout
@@ -50,23 +60,44 @@ class _OrderDashboardState extends State<OrderDashboard> {
       appBar: AppBar(
         title: const Text('Order Dashboard'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
-          ),
-          if (!isSmallScreen)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: CircleAvatar(
-                // backgroundImage:
-                //     NetworkImage('https://via.placeholder.com/150'),
-                radius: 16,
-              ),
-            ),
+          // IconButton(
+          //   icon: const Icon(Icons.search),
+          //   onPressed: () {},
+          // ),
+          // IconButton(
+          //   icon: const Icon(Icons.notifications_outlined),
+          //   onPressed: () {},
+          // ),
+          // if (!isSmallScreen)
+          ListenableBuilder(
+              listenable: authProvider,
+              builder: (context, _) {
+                if (authProvider.loading) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: CircleAvatar(
+                      radius: 16,
+                      child: Icon(Icons.person),
+                    ),
+                  );
+                }
+                return GestureDetector(
+                  onTap: () {
+                    context.go(Routes.profile,
+                        extra: authProvider.currentUser!);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: CircleAvatar(
+                      radius: 16,
+                      child: Text(
+                        _getInitials(authProvider.currentUser!.name),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                );
+              }),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -76,70 +107,79 @@ class _OrderDashboardState extends State<OrderDashboard> {
         label: const Text('Add Order'),
         icon: const Icon(Icons.add),
       ),
-      drawer: isSmallScreen ? _buildDrawer() : null,
-      body: Padding(
-        padding: EdgeInsets.all(isSmallScreen ? 12.0 : 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Heading with greeting
-            Text(
-              'Dashboard Overview',
-              style: GoogleFonts.poppins(
-                fontSize: isSmallScreen ? 20 : 24,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF1E293B),
+      // drawer: isSmallScreen ? _buildDrawer() : null,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(isSmallScreen ? 12.0 : 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Heading with greeting
+              Text(
+                'Dashboard Overview',
+                style: GoogleFonts.poppins(
+                  fontSize: isSmallScreen ? 20 : 24,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1E293B),
+                ),
               ),
-            ),
-            Text(
-              'Welcome back, check your order status',
-              style: GoogleFonts.poppins(
-                fontSize: isSmallScreen ? 12 : 14,
-                color: Colors.grey[600],
+              Text(
+                'Welcome back, check your order status',
+                style: GoogleFonts.poppins(
+                  fontSize: isSmallScreen ? 12 : 14,
+                  color: Colors.grey[600],
+                ),
               ),
-            ),
 
-            SizedBox(height: isSmallScreen ? 16 : 24),
+              SizedBox(height: isSmallScreen ? 16 : 24),
 
-            // Order Summary Cards - Wrapped in a layout builder for responsiveness
-            LayoutBuilder(
-              builder: (context, constraints) {
-                return isSmallScreen
-                    ? _buildSummaryCardsGridView()
-                    : _buildSummaryCardsRow();
-              },
-            ),
+              // Order Summary Cards - Wrapped in a layout builder for responsiveness
+              ListenableBuilder(
+                  listenable: dashboardProvider,
+                  builder: (context, _) {
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        return isSmallScreen
+                            ? _buildSummaryCardsGridView()
+                            : _buildSummaryCardsRow();
+                      },
+                    );
+                  }),
 
-            SizedBox(height: isSmallScreen ? 16 : 24),
+              SizedBox(height: isSmallScreen ? 16 : 24),
 
-            // Filter Options
-            _buildFilterSection(isSmallScreen),
+              // Filter Options
+              _buildFilterSection(isSmallScreen),
 
-            SizedBox(height: isSmallScreen ? 12 : 16),
+              SizedBox(height: isSmallScreen ? 12 : 16),
 
-            // Orders List
-            ListenableBuilder(
-                listenable: dashboardProvider,
-                builder: (context, _) {
-                  var orderList = filteredOrders(dashboardProvider.orders);
-                  return Expanded(
-                    child: orderList.isEmpty
+              // Orders List
+              ListenableBuilder(
+                  listenable: dashboardProvider,
+                  builder: (context, _) {
+                    var orderList = filteredOrders(dashboardProvider.orders);
+                    return orderList.isEmpty
                         ? _buildEmptyState()
                         : ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                             itemCount: orderList.length,
                             itemBuilder: (context, index) {
                               final order = orderList[index];
                               return GestureDetector(
                                 onTap: () {
-                                  context.go(Routes.order, extra: order);
+                                  context.go(Routes.order, extra: {
+                                    'order': order,
+                                    'user': authProvider.currentUser!
+                                  });
                                 },
                                 child: _buildOrderCard(order, isSmallScreen),
                               );
                             },
-                          ),
-                  );
-                }),
-          ],
+                          );
+                  }),
+            ],
+          ),
         ),
       ),
     );
@@ -526,14 +566,14 @@ class _OrderDashboardState extends State<OrderDashboard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Text(
-                        //   order.customerName,
-                        //   style: GoogleFonts.poppins(
-                        //     fontWeight: FontWeight.w600,
-                        //     fontSize: 14,
-                        //     color: const Color(0xFF1E293B),
-                        //   ),
-                        // ),
+                        Text(
+                          order.orderName,
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: const Color(0xFF1E293B),
+                          ),
+                        ),
                         const SizedBox(height: 2),
                         Text(
                           'Order #${order.id}',

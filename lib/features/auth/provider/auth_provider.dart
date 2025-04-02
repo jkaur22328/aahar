@@ -34,6 +34,7 @@ class AuthProvider with ChangeNotifier {
           'name': name,
           'email': email,
           'role': role,
+          'createdAt': Timestamp.now()
         });
         await getUserDetail(userCredential.user!.uid);
       }
@@ -74,6 +75,8 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<UserModel?> getUserDetail(String uid) async {
+    _loading = true;
+    notifyListeners();
     try {
       final res =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
@@ -82,6 +85,7 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       return null;
     } finally {
+      _loading = false;
       notifyListeners();
     }
   }

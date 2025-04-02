@@ -11,31 +11,31 @@ enum UserRole {
 
 class Users {
   final String name;
-  final UserRole type;
-  final String emailId;
-  final Timestamp createdDate;
+  final UserRole role;
+  final String email;
+  final Timestamp createdAt;
   Users({
     required this.name,
-    required this.type,
-    required this.emailId,
-    required this.createdDate,
+    required this.role,
+    required this.email,
+    required this.createdAt,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'name': name,
-      'type': type,
-      'emailId': emailId,
-      'createdDate': createdDate,
+      'role': role,
+      'email': email,
+      'createdAt': createdAt,
     };
   }
 
   factory Users.fromMap(Map<String, dynamic> map) {
     return Users(
       name: map['name'] ?? '',
-      type: map['type'],
-      emailId: map['emailId'] ?? '',
-      createdDate: map['createdDate'],
+      role: map['role'],
+      email: map['email'] ?? '',
+      createdAt: map['createdAt'],
     );
   }
 

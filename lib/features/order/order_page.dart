@@ -1,4 +1,5 @@
 import 'package:aahar/data/model/order.dart';
+import 'package:aahar/features/auth/model/user_model.dart';
 import 'package:aahar/features/order/widget/status_dropdown.dart';
 import 'package:aahar/util/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,8 +8,9 @@ import 'package:intl/intl.dart';
 
 class OrderDetailPage extends StatelessWidget {
   final OrderModel order;
+  final UserModel user;
 
-  const OrderDetailPage({super.key, required this.order});
+  const OrderDetailPage({super.key, required this.order, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +22,12 @@ class OrderDetailPage extends StatelessWidget {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.support_agent),
-            onPressed: () {
-              // TODO: Implement support chat
-            },
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.support_agent),
+          //   onPressed: () {
+          //     // TODO: Implement support chat
+          //   },
+          // ),
         ],
       ),
       body: SingleChildScrollView(
@@ -34,9 +36,12 @@ class OrderDetailPage extends StatelessWidget {
           children: [
             _buildOrderStatusTracker(),
             _buildSectionDivider(),
-            StatusDropdown(order: order, userRole: UserRole.shopping),
-            StatusDropdown(order: order, userRole: UserRole.cooking),
-            StatusDropdown(order: order, userRole: UserRole.delivery),
+            if (user.role == UserRole.shopping || user.role == UserRole.admin)
+              StatusDropdown(order: order, userRole: UserRole.shopping),
+            if (user.role == UserRole.cooking || user.role == UserRole.admin)
+              StatusDropdown(order: order, userRole: UserRole.cooking),
+            if (user.role == UserRole.delivery || user.role == UserRole.admin)
+              StatusDropdown(order: order, userRole: UserRole.delivery),
             _buildOrderDetails(),
             _buildSectionDivider(),
             _buildMenuItems(),

@@ -169,53 +169,75 @@ class _SignUpPageState extends State<SignUpPage> {
                                     _buildRoleDropdown(),
                                     const SizedBox(height: 40),
                                     // Sign Up Button
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: ElevatedButton(
-                                        onPressed: () async {
-                                          if (_formKey.currentState!
-                                              .validate()) {
-                                            final res = await authProvider
-                                                .signUpWithEmailAndPassword(
-                                                    _emailController.text
-                                                        .trim(),
-                                                    _passwordController.text
-                                                        .trim(),
-                                                    _selectedRole,
-                                                    _nameController.text
-                                                        .trim());
+                                    ListenableBuilder(
+                                        listenable: authProvider,
+                                        builder: (context, _) {
+                                          return authProvider.loading
+                                              ? const Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                          color: Colors.white))
+                                              : SizedBox(
+                                                  width: double.infinity,
+                                                  child: ElevatedButton(
+                                                    onPressed: () async {
+                                                      if (_formKey.currentState!
+                                                          .validate()) {
+                                                        final res =
+                                                            await authProvider
+                                                                .signUpWithEmailAndPassword(
+                                                          _emailController.text
+                                                              .trim(),
+                                                          _passwordController
+                                                              .text
+                                                              .trim(),
+                                                          _selectedRole,
+                                                          _nameController.text
+                                                              .trim(),
+                                                        );
 
-                                            if (context.mounted) {
-                                              if (res != null) {
-                                                context.go(Routes.home);
-                                              } else {
-                                                showSnackBar(context,
-                                                    "Something went Wrong!!");
-                                              }
-                                            }
-                                          }
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          foregroundColor:
-                                              const Color(0xFF1A237E),
-                                          backgroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 16),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(15),
-                                          ),
-                                          elevation: 0,
-                                        ),
-                                        child: const Text(
-                                          'Create Account',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                                        if (context.mounted) {
+                                                          if (res != null) {
+                                                            context.go(
+                                                              Routes.admin,
+                                                            );
+                                                          } else {
+                                                            showSnackBar(
+                                                                context,
+                                                                "Something went Wrong!!");
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      foregroundColor:
+                                                          const Color(
+                                                              0xFF1A237E),
+                                                      backgroundColor:
+                                                          Colors.white,
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          vertical: 16),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(15),
+                                                      ),
+                                                      elevation: 0,
+                                                    ),
+                                                    child: const Text(
+                                                      'Create Account',
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                        }),
                                     const SizedBox(height: 20),
                                     // Login Link
                                     Row(
