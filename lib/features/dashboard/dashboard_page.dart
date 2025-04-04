@@ -100,13 +100,23 @@ class _DashboardPageState extends State<DashboardPage> {
               }),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          context.go(Routes.createOrder);
-        },
-        label: const Text('Add Order'),
-        icon: const Icon(Icons.add),
-      ),
+      floatingActionButton: ListenableBuilder(
+          listenable: authProvider,
+          builder: (context, _) {
+            if (!authProvider.loading &&
+                authProvider.currentUser != null &&
+                authProvider.currentUser!.role == UserRole.admin) {
+              return FloatingActionButton.extended(
+                onPressed: () {
+                  context.go(Routes.createOrder);
+                },
+                label: const Text('Add Order'),
+                icon: const Icon(Icons.add),
+              );
+            }
+
+            return const SizedBox();
+          }),
       // drawer: isSmallScreen ? _buildDrawer() : null,
       body: SingleChildScrollView(
         child: Padding(
